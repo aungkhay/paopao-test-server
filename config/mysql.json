@@ -1,0 +1,34 @@
+{
+  "development": {
+     "bjl":{
+          "host": "127.0.0.1",
+          "port": "3306",
+          "database": "kx",
+          "user": "root",
+          "password": ""
+     },
+     "record":{
+          "host": "127.0.0.1",
+          "port": "3306",
+          "database": "kx",
+          "user": "root",
+          "password": ""  
+     }
+  },
+  "production": {
+     "bjl":{
+          "host": "127.0.0.1",
+          "port": "3306",
+          "database": "bjl",
+          "user": "hn6988",
+          "password": ""
+     },
+     "record":{
+          "host": "127.0.0.1",
+          "port": "3306",
+          "database": "record",
+          "user": "hn6988",
+          "password": ""
+     }
+  }
+}

@@ -1,0 +1,39 @@
+{
+  "http" : {                                                               
+    "host" : "103.112.98.79",       
+    "port" : 5195,
+    "wsport": 8080
+  },
+  "http_cb" : {                                                               
+    "host" : "45.116.165.93",                               
+    "port" : 10003
+  },
+  "http_chat" : {                                                               
+    "host" : "192.168.176.92",                               
+    "port" : 3198
+  },
+  "redis" : {
+    "host" : "127.0.0.1",
+    "port" : 6379,
+    "pwd" : ""
+  },
+  "redis2" : {
+    "host" : "127.0.0.1",
+    "port" : 6379,
+     "pwd" : ""
+  },
+   "paopaochat":{
+    "access_appId":"GwnvxVYrak",
+    "appId": "AvMSzREXTT",
+    "secret": "dc82ba467b616ce4477dea8c0e3cb034fc12acf6670b29793a76f2e48e72a86a",
+    "baseUrl": "https://bot.paopaochat.com",
+    "token": "8825ad9e1e6b40c38881ae39d39e604b"
+  },
+  "imgUrl" : "http://45.120.52.32/images/",
+  "imgPath" : {
+    "test":"1",
+    "windows" : "E:\\imgData",
+    "linux" : "/home/imgData",
+    "curSystem" : "linux"                 
+  }
+}

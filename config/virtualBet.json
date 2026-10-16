@@ -1,0 +1,21 @@
+{
+  "MAX_POOL": 25,     
+  "rotateMinutes": 180,
+  "BAO_TYPES": ["h","zd","xd","l","m"],
+  "profiles": [
+    { "count": 6, "zxRange": [50, 1000],  "baoRange": [20, 150] },  
+    { "count": 8, "zxRange": [300, 3000], "baoRange": [20, 300] },
+    { "count": 4, "zxRange": [1000, 20000],"baoRange": [50, 800] }
+  ],
+  "defaultWindow": {
+    "odd":  { "startOffsetMs": 8000,  "endOffsetMs": 35000 },
+    "even": { "startOffsetMs": 10000, "endOffsetMs": 45000 }
+  },
+  
+  "defaultGapMs": { "min": 500, "max": 4000 },  
+  "onlineCountRanges": {
+    "dawn":  [10, 20],
+    "day":   [10, 20],
+    "night": [10, 15]
+  }
+}
