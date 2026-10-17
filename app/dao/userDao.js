@@ -17,6 +17,7 @@ const fieldMap = {
   '小老虎': 'l',
   '大老虎': 'k',
   '完美': 'm',
+  '幸运七A': 'a',
   '幸运七': 'q'
 };
 
@@ -1063,6 +1064,7 @@ userDao.removeExistingBetTypes = async function(params) {
       xd: 'IFNULL(g.xd,0) > 0',
       l:  'IFNULL(g.l,0) > 0',
       k:  'IFNULL(g.k,0) > 0',
+      a:  'IFNULL(g.a,0) > 0',
       q:  'IFNULL(g.q,0) > 0',
       m:  'IFNULL(g.m,0) > 0'
     };
@@ -1150,6 +1152,7 @@ userDao.cleanupBetsOnStopSimplified = async function(msg) {
       if (r.l  && Number(r.l)  > 0) return 'l';
       if (r.k  && Number(r.k)  > 0) return 'k';
       if (r.m  && Number(r.m)  > 0) return 'm';
+      if (Number(r.a) > 0) return 'a';
       if (r.q  && Number(r.q)  > 0) return 'q';  // ✅ 新增：q 字段（幸运7）
       return null;
     }
@@ -1268,11 +1271,11 @@ userDao.updateResult = async function (msg, bet) {
 
     if(!msg.is_re_settlement){
       sql = `update gameshist set xml_s = ?,xml_d = ?, g_zx = ?, g_yl = ?, g_xm = ?, ye = ?,
-            z_yl = ?,x_yl = ?,h_yl = ?,zd_yl = ? , xd_yl = ? , l_yl = ?,k_yl = ?,m_yl = ?,q_yl = ? , fh = ? , yl = ? ,
+            z_yl = ?,x_yl = ?,h_yl = ?,zd_yl = ? , xd_yl = ? , l_yl = ?,k_yl = ?,m_yl = ?,q_yl = ? , a_yl = ? , fh = ? , yl = ? ,
             xz = ? , xml_zx = ? ,xml_sb = ?, kj = ? , str_pai = ? , stime = ? , yxxz = ? , closed = 1 where Id = ? and closed = 0`;
     }else{
       sql = `update gameshist_record set xml_s = ?,xml_d = ?, g_zx = ?, g_yl = ?, g_xm = ?, ye = ?,
-              z_yl = ?,x_yl = ?,h_yl = ?,zd_yl = ? , xd_yl = ? , l_yl = ?,k_yl = ?,m_yl = ?,q_yl = ? , fh = ? , yl = ? ,
+              z_yl = ?,x_yl = ?,h_yl = ?,zd_yl = ? , xd_yl = ? , l_yl = ?,k_yl = ?,m_yl = ?,q_yl = ? , a_yl = ? , fh = ? , yl = ? ,
               xz = ? , xml_zx = ? ,xml_sb = ?, kj = ? , str_pai = ? , stime = ? , yxxz = ? , yedemo = "修改路单" 
               where Id = ? `;
     }
@@ -1292,6 +1295,7 @@ userDao.updateResult = async function (msg, bet) {
       bet.kyl,
       bet.myl,
       bet.qyl,
+      bet.ayl || 0,
       bet.t_fh,
       bet.t_yl,
       bet.t_xz,
@@ -1355,6 +1359,7 @@ userDao.getJcTotal = async function (msg) {
         SUM(g.xd) as xd,
         SUM(g.m) as m,
         SUM(g.q) as q,
+        SUM(g.a) as a,
         SUM(g.l) as l,
         SUM(g.k) as k,
 
@@ -1426,9 +1431,9 @@ userDao.getJcTotal = async function (msg) {
 userDao.insertJcTotal = async function (r) {
   const fields = [
     'group_nickname', 'cc', 'jc', 'kj',
-    'z', 'h', 'x', 'zd', 'xd', 'm', 'q', 'l','k',
-    'g_z', 'g_h', 'g_x', 'g_zd', 'g_xd', 'g_m', 'g_q', 'g_l',
-    'z_yl', 'h_yl', 'x_yl', 'zd_yl', 'xd_yl', 'm_yl', 'q_yl', 'l_yl','k_yl',
+    'z', 'h', 'x', 'zd', 'xd', 'm', 'q', 'a', 'l','k',
+    'g_z', 'g_h', 'g_x', 'g_zd', 'g_xd', 'g_m', 'g_q', 'g_a', 'g_l',
+    'z_yl', 'h_yl', 'x_yl', 'zd_yl', 'xd_yl', 'm_yl', 'q_yl', 'a_yl', 'l_yl','k_yl',
     'zxdc', 'tzx', 'tsbl', 'lt', 'sp', 'spm','spxm',
     'stime', 'zyk', 'xzyk', 'gyk', 'dcyk', 'xztyk',
     'sbltyk', 'sblspyk', 'xzspyk', 'ltyk','spzsyk','statistics_date'
@@ -1758,6 +1763,11 @@ userDao.recalculateResults = async function (msg,rInfo) {
     let args = [msg.cc, msg.jc, msg.roomId, rInfo.statistics_date];
     let rows = await mysql.query("bjl", sql, args);
     if (!rows || rows.length === 0) return { err: null, data: [] };
+
+    // Validate A metadata before reversing any previous payout.
+    if (rows.some(row => Number(row.a) > 0)) {
+      require("../domain/sx/parseResult").luckySevenAMultiplier(msg.result);
+    }
 
     // ✅ 改用 userId 做 key
     let array_user_id = {};

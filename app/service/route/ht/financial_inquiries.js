@@ -99,6 +99,7 @@ router.post('/ht_get_bet_data', async function(req, res) {
                 l:item.l,
                 k:item.k,
                 q:item.q,
+                a:item.a,
                 m:item.m
             }
             return s;
@@ -162,7 +163,7 @@ async function get_detail(r,parameter_setup){
         r.tzx = r.d_z + r.d_x;
         r.tsbl = 0;   //  台三宝+幸运6
         r.sbltyk = 0; //  三宝+幸运6台盈亏
-        r.sblspyk = r.h_yl + r.zd_yl + r.xd_yl + r.m_yl + r.q_yl + r.l_yl + r.k_yl;  // 上盘盈亏,默认是全部上盘
+        r.sblspyk = r.h_yl + r.zd_yl + r.xd_yl + r.m_yl + r.q_yl + (Number(r.a_yl) || 0) + r.l_yl + r.k_yl;  // 上盘盈亏,默认是全部上盘
 
         // 如果庄闲都下，那要算对冲
         r.zxdc = 0;

@@ -226,7 +226,7 @@ dao.getMemberDetails = async function(msg){
                 ghd.userId AS userId,
                 MAX(ghd.group_nickname) AS group_nickname, 
                 IFNULL(SUM(COALESCE(ghd.z_yl, 0) + COALESCE(ghd.x_yl, 0)), 0) AS total_zx_yl,
-                IFNULL(SUM(COALESCE(ghd.zd_yl, 0) + COALESCE(ghd.xd_yl, 0) + COALESCE(ghd.h_yl, 0) + COALESCE(ghd.m_yl, 0) + COALESCE(ghd.l_yl, 0) + COALESCE(ghd.k_yl, 0) + COALESCE(ghd.q_yl, 0)), 0) AS total_sb_yl,
+                IFNULL(SUM(COALESCE(ghd.zd_yl, 0) + COALESCE(ghd.xd_yl, 0) + COALESCE(ghd.h_yl, 0) + COALESCE(ghd.m_yl, 0) + COALESCE(ghd.l_yl, 0) + COALESCE(ghd.k_yl, 0) + COALESCE(ghd.q_yl, 0) + COALESCE(ghd.a_yl, 0)), 0) AS total_sb_yl,
                 IFNULL(SUM(ghd.xml_sb), 0) AS total_xml_sb,
                 IFNULL(SUM(ghd.xml_zx), 0) AS total_xml_zx,
                 IFNULL(SUM(ghd.yxxz), 0) AS total_yxxz,

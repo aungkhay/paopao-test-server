@@ -4,7 +4,7 @@
 const columns = [
     'Id', 'statistics_date', 'group_nickname', 'userId', 'userName',
     'z', 'x', 'yl', 'z_yl', 'x_yl', 'zd_yl', 'xd_yl', 'h_yl',
-    'l_yl', 'k_yl', 'm_yl', 'q_yl', 'xml_zx', 'xml_sb', 'yxxz', 'points'
+    'l_yl', 'k_yl', 'm_yl', 'q_yl', 'a_yl', 'xml_zx', 'xml_sb', 'yxxz', 'points'
 ].map(column => `src.${column}`).join(', ');
 
 module.exports = `(

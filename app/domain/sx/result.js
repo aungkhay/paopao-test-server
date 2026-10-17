@@ -123,7 +123,8 @@ let settlement_bjl = async (msg,rInfo,res) => {
     let isLucky7_6 = parseResult.isLucky7_6(msg.result_code);
     let isPerfect = parseResult.isPerfect(msg.result_code);
 
-    msg.strPai = "";
+    const aMultiplier = res.some(row => Number(row.a) > 0) ? parseResult.luckySevenAMultiplier(msg.result_code, rInfo.parameter_setup) : 0;
+    msg.strPai = aMultiplier > 0 ? "幸运七A " : "";
     if(isBank)msg.strPai += "庄 "
     if(isTie)msg.strPai += "和 "
     if(isPlayer)msg.strPai += "闲 "
@@ -140,7 +141,7 @@ let settlement_bjl = async (msg,rInfo,res) => {
         let r = rInfo.parameter_setup;
         let total_yl = 0;
         let all_bets = [];
-        let all_item_yl = {zyl:0,hyl:0,xyl:0,zdyl:0,xdyl:0,lyl:0,kyl:0,myl:0,qyl:0};   
+        let all_item_yl = {zyl:0,hyl:0,xyl:0,zdyl:0,xdyl:0,lyl:0,kyl:0,myl:0,ayl:0,qyl:0};
 
         let obj = {group_nickname:msg.group_nickname };
         let row = await playerDao.getRealPlayerName(obj);
@@ -152,7 +153,7 @@ let settlement_bjl = async (msg,rInfo,res) => {
         }
 
         for (let i in res){
-            let bet = {t_xz:0,t_yl:0,t_fh:0,zyl:0,hyl:0,xyl:0,zdyl:0,xdyl:0,lyl:0,kyl:0,myl:0,qyl:0,zx_xml:0,sb_xml:0,xz_yl:0,sb_yl:0,yxxz:0};  // 每个人的盈亏情况
+            let bet = {t_xz:0,t_yl:0,t_fh:0,zyl:0,hyl:0,xyl:0,zdyl:0,xdyl:0,lyl:0,kyl:0,myl:0,ayl:0,qyl:0,zx_xml:0,sb_xml:0,xz_yl:0,sb_yl:0,yxxz:0};  // 每个人的盈亏情况
             if( isBank &&  res[i].z > 0 ){
                 bet.zyl +=  res[i].z * r.banker_odds/100;   // 庄嬴利
                 bet.zyl = bet.zyl >= 0 ? Math.floor(bet.zyl) : Math.trunc(bet.zyl);
@@ -194,6 +195,10 @@ let settlement_bjl = async (msg,rInfo,res) => {
                 bet.kyl = bet.kyl >= 0 ? Math.floor(bet.kyl) : Math.trunc(bet.kyl);
                 bet.t_fh += res[i].k + bet.kyl;
             }    
+
+            const aAmount = Number(res[i].a) || 0;
+            bet.ayl = aMultiplier > 0 ? Math.floor(aAmount * aMultiplier) : -aAmount;
+            if (aMultiplier > 0 && aAmount > 0) bet.t_fh += aAmount + bet.ayl;
 
             if(isLucky7_4 && res[i].q > 0){
                 bet.qyl +=  res[i].q * r.lucky7_4_odds/100;    // 幸运7嬴利(四张牌) lucky7_4_odds:四张牌
@@ -241,6 +246,7 @@ let settlement_bjl = async (msg,rInfo,res) => {
                          bet.xdyl < 0 ? res[i].xd : 
                          bet.lyl < 0 ? res[i].l :
                          bet.kyl < 0 ? res[i].k :
+                         bet.ayl < 0 ? aAmount :
                          bet.qyl < 0 ? res[i].q :
                          bet.myl < 0 ? res[i].m : 0 ;
 
@@ -258,14 +264,15 @@ let settlement_bjl = async (msg,rInfo,res) => {
                 all_item_yl.lyl += bet.lyl;
                 all_item_yl.kyl += bet.kyl;
                 all_item_yl.qyl += bet.qyl;
+                all_item_yl.ayl += bet.ayl;
             }
 
-            bet.t_xz = res[i].z + res[i].x + res[i].h + res[i].zd + res[i].xd + res[i].l + res[i].k + res[i].m + res[i].q;
+            bet.t_xz = res[i].z + res[i].x + res[i].h + res[i].zd + res[i].xd + res[i].l + res[i].k + res[i].m + res[i].q + aAmount;
             bet.t_yl = bet.t_fh - bet.t_xz;
             bet.xml_d = bet.zx_xml + bet.sb_xml;
             bet.xml_s = 0;
             bet.xz_yl = bet.zyl + bet.xyl;   // 庄闲洗码量盈亏
-            bet.sb_yl = bet.zdyl + bet.hyl + bet.xdyl + bet.lyl + bet.kyl + bet.myl + bet.qyl;  // 三宝盈亏
+            bet.sb_yl = bet.zdyl + bet.hyl + bet.xdyl + bet.lyl + bet.kyl + bet.myl + bet.qyl + bet.ayl;  // 三宝盈亏
             bet.id = res[i].Id;
             bet.userId = res[i].userId;
             total_yl += bet.t_yl;
@@ -352,8 +359,8 @@ async function fill_jc_detail(msg,rInfo,all_item_yl){
     };
     const r = res.data[0];
     const numericFields = [
-        'z', 'x', 'h', 'zd', 'xd', 'l', 'k', 'm', 'q',
-        'g_z', 'g_x', 'g_h', 'g_zd', 'g_xd', 'g_l', 'g_k', 'g_m', 'g_q'
+        'z', 'x', 'h', 'zd', 'xd', 'l', 'k', 'm', 'q', 'a',
+        'g_z', 'g_x', 'g_h', 'g_zd', 'g_xd', 'g_l', 'g_k', 'g_m', 'g_q', 'g_a'
     ];
     numericFields.forEach(field => {
         r[field] = numberValue(r[field]);
@@ -369,11 +376,12 @@ async function fill_jc_detail(msg,rInfo,all_item_yl){
     r.k_yl = numberValue(all_item_yl.kyl);
     r.m_yl = numberValue(all_item_yl.myl);
     r.q_yl = numberValue(all_item_yl.qyl);
+    r.a_yl = numberValue(all_item_yl.ayl);
 
-    r.tsbl = r.h + r.zd + r.xd + r.m + r.l + r.k + r.q;
+    r.tsbl = r.h + r.zd + r.xd + r.m + r.l + r.k + r.q + r.a;
     r.sbltyk = -(
         r.h_yl + r.zd_yl + r.xd_yl + r.m_yl +
-        r.l_yl + r.k_yl + r.q_yl
+        r.l_yl + r.k_yl + r.q_yl + r.a_yl
     );
     r.sblspyk = 0;
 
@@ -482,7 +490,7 @@ let settlement_jc_bjl = (result_code,parameter_setup,re) => {
     };
     re = { ...re };
     [
-        'z', 'x', 'h', 'zd', 'xd', 'l', 'k', 'm', 'q',
+        'z', 'x', 'h', 'zd', 'xd', 'l', 'k', 'm', 'q', 'a',
         'g_z', 'g_x', 'd_z', 'd_x', 'zxdc', 'lt', 'sp'
     ].forEach(field => {
         re[field] = toNumber(re[field]);
@@ -592,8 +600,12 @@ let settlement_jc_bjl = (result_code,parameter_setup,re) => {
         //bet.g_fh += re.g_m +  re.g_m * r.perfect_pair/100;   
     }    
 
+    if (re.a > 0) {
+        const multiplier = parseResult.luckySevenAMultiplier(result_code, parameter_setup);
+        if (multiplier > 0) bet.t_fh += re.a + Math.floor(re.a * multiplier);
+    }
     // 总下注
-    bet.t_xz = re.z + re.x + re.h + re.zd + re.xd + re.l + re.m + re.q + re.k;
+    bet.t_xz = re.z + re.x + re.h + re.zd + re.xd + re.l + re.m + re.q + re.k + re.a;
     // 个下注和台下注(当前版本只算庄闲)
     bet.g_xz = re.g_z + re.g_x;   // + re.g_h + re.g_zd + re.g_xd + re.g_l + re.g_m + re.g_q;
 

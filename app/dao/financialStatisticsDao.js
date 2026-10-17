@@ -127,11 +127,13 @@ dao.sbStatistics = async function (msg) {
                 IFNULL(SUM(k), 0) AS k,
                 IFNULL(SUM(m), 0) AS m,
                 IFNULL(SUM(q), 0) AS q,
+                IFNULL(SUM(a), 0) AS a,
                 IFNULL(-SUM(l_yl), 0) AS l_yl,
                 IFNULL(-SUM(k_yl), 0) AS k_yl,
                 IFNULL(-SUM(m_yl), 0) AS m_yl,
                 IFNULL(-SUM(q_yl), 0) AS q_yl,
-                IFNULL(-SUM(h_yl + zd_yl + xd_yl + l_yl + k_yl + m_yl + q_yl), 0) AS company_yl
+                IFNULL(-SUM(a_yl), 0) AS a_yl,
+                IFNULL(-SUM(h_yl + zd_yl + xd_yl + l_yl + k_yl + m_yl + q_yl + a_yl), 0) AS company_yl
             FROM game_jc_total
             ${whereSql}
             GROUP BY statistics_date
@@ -149,11 +151,13 @@ dao.sbStatistics = async function (msg) {
                 IFNULL(SUM(k), 0) AS k,
                 IFNULL(SUM(m), 0) AS m,
                 IFNULL(SUM(q), 0) AS q,
+                IFNULL(SUM(a), 0) AS a,
                 IFNULL(-SUM(l_yl), 0) AS l_yl,
                 IFNULL(-SUM(k_yl), 0) AS k_yl,
                 IFNULL(-SUM(m_yl), 0) AS m_yl,
                 IFNULL(-SUM(q_yl), 0) AS q_yl,
-                IFNULL(-SUM(h_yl + zd_yl + xd_yl + l_yl + k_yl + m_yl + q_yl), 0) AS company_yl
+                IFNULL(-SUM(a_yl), 0) AS a_yl,
+                IFNULL(-SUM(h_yl + zd_yl + xd_yl + l_yl + k_yl + m_yl + q_yl + a_yl), 0) AS company_yl
             FROM game_jc_total
             ${whereSql}
         `;
@@ -167,11 +171,13 @@ dao.sbStatistics = async function (msg) {
             l: parseFloat(s.l || 0),
             m: parseFloat(s.m || 0),
             q: parseFloat(s.q || 0),
+            a: parseFloat(s.a || 0),
             k: parseFloat(s.k || 0),
             l_yl: parseFloat(s.l_yl || 0),
             k_yl: parseFloat(s.k_yl || 0),
             m_yl: parseFloat(s.m_yl || 0),
             q_yl: parseFloat(s.q_yl || 0),
+            a_yl: parseFloat(s.a_yl || 0),
             k_yl: parseFloat(s.k_yl || 0),
             company_yl: parseFloat(s.company_yl || 0) // 保持与之前相同的取反约定
         };

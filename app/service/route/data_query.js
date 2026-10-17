@@ -185,6 +185,7 @@ router.post('/get_player_bet_data', async function(req, res) {
                 l:item.l,
                 k:item.k,
                 lucky7:item.q,
+                lucky7a:item.a,
                 perfect:item.m,
                 pair:item.d
             }

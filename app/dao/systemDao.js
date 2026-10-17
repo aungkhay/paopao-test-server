@@ -389,6 +389,21 @@ systemDao.parameterSetup = async function (msg) {
       throw new Error("小老虎或大老虎限红设置不正确");
     }
 
+    const luckyAFields = {
+      enable_Lucky_7_a: 1, lucky7_a_2_odds: 500, lucky7_a_3_odds: 1500,
+      lucky7_a_min_limit: firstDefined(existing.lucky7_min_limit, msg.lucky7_min_limit, 30),
+      lucky7_a_max_limit: firstDefined(existing.lucky7_max_limit, msg.lucky7_max_limit, 8000),
+      lucky7_a_super_4_odds: 3000
+    };
+    const luckyA = Object.fromEntries(Object.entries(luckyAFields).map(([key, fallback]) =>
+      [key, Number(firstDefined(msg[key], existing[key], fallback))]
+    ));
+    if (!Object.values(luckyA).every(value => Number.isFinite(value) && value >= 0) ||
+        ![0, 1].includes(luckyA.enable_Lucky_7_a) ||
+        luckyA.lucky7_a_max_limit < luckyA.lucky7_a_min_limit) {
+      throw new Error("幸运七A开关、赔率或限红设置不正确");
+    }
+
     if (res.length > 0) {
       // ✅ 【更新逻辑】修复：删除最后一个字段后的逗号
       sql = `
@@ -405,7 +420,9 @@ systemDao.parameterSetup = async function (msg) {
           minimum_amount_sold = ?, enable_Lucky_6 = ?, change_settings = ?, enable_perfect_pairs = ?,
           enable_road = ?, enable_any_pairs = ?, screenshot_mode_bet_form = ?, pb_bet_calculation_Mode = ?,
           should_statistics_truncated = ?, pb_tabletop_occupies_proportion = ?, pb_tabletop_occupies_proportion_max_limit = ?,
-          enable_Lucky_7 = ?, lucky7_4_odds = ?, lucky7_5_odds = ?, lucky7_6_odds = ?, lucky7_min_limit = ?, lucky7_max_limit = ?
+          enable_Lucky_7 = ?, lucky7_4_odds = ?, lucky7_5_odds = ?, lucky7_6_odds = ?, lucky7_min_limit = ?, lucky7_max_limit = ?,
+          enable_Lucky_7_a = ?, lucky7_a_2_odds = ?, lucky7_a_3_odds = ?, lucky7_a_min_limit = ?, lucky7_a_max_limit = ?,
+          lucky7_a_super_4_odds = ?
         WHERE group_nickname = ?
       `;
 
@@ -423,6 +440,7 @@ systemDao.parameterSetup = async function (msg) {
         msg.enable_road, msg.enable_any_pairs, msg.screenshot_mode_bet_form, msg.pb_bet_calculation_Mode,
         msg.should_statistics_truncated, msg.pb_tabletop_occupies_proportion, msg.pb_tabletop_occupies_proportion_max_limit,
         msg.enable_Lucky_7, msg.lucky7_4_odds, msg.lucky7_5_odds, msg.lucky7_6_odds, msg.lucky7_min_limit, msg.lucky7_max_limit,
+        ...Object.values(luckyA),
         msg.group_nickname
       ];
     } else {
@@ -439,7 +457,9 @@ systemDao.parameterSetup = async function (msg) {
           transfer_small_change, minimum_amount_sold, enable_Lucky_6, change_settings, enable_perfect_pairs,
           enable_road, enable_any_pairs, screenshot_mode_bet_form, pb_bet_calculation_Mode, should_statistics_truncated,
           pb_tabletop_occupies_proportion, pb_tabletop_occupies_proportion_max_limit, enable_Lucky_7, lucky7_4_odds,
-          lucky7_5_odds, lucky7_6_odds, lucky7_min_limit, lucky7_max_limit
+          lucky7_5_odds, lucky7_6_odds, lucky7_min_limit, lucky7_max_limit,
+          enable_Lucky_7_a, lucky7_a_2_odds, lucky7_a_3_odds, lucky7_a_min_limit, lucky7_a_max_limit,
+          lucky7_a_super_4_odds
         ) VALUES (
           ?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?
         )
@@ -457,10 +477,14 @@ systemDao.parameterSetup = async function (msg) {
         msg.transfer_small_change, msg.minimum_amount_sold, msg.enable_Lucky_6, msg.change_settings, msg.enable_perfect_pairs,
         msg.enable_road, msg.enable_any_pairs, msg.screenshot_mode_bet_form, msg.pb_bet_calculation_Mode, msg.should_statistics_truncated,
         msg.pb_tabletop_occupies_proportion, msg.pb_tabletop_occupies_proportion_max_limit, msg.enable_Lucky_7, msg.lucky7_4_odds,
-        msg.lucky7_5_odds, msg.lucky7_6_odds, msg.lucky7_min_limit, msg.lucky7_max_limit
+        msg.lucky7_5_odds, msg.lucky7_6_odds, msg.lucky7_min_limit, msg.lucky7_max_limit,
+        ...Object.values(luckyA)
       ];
     }
 
+    if (res.length === 0) {
+      sql = sql.replace(/VALUES\s*\([\s?,]*\)/, `VALUES (${args.map(() => '?').join(',')})`);
+    }
     res = await mysql.query("bjl", sql, args);
     return { err: null, data: res };
   } catch (error) {

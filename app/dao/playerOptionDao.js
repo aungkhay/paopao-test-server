@@ -32,7 +32,7 @@ playerOptionDao.getPlayerDetail = async function (msg) {
                 ghd.userId AS userId,
                 MAX(ghd.group_nickname) AS group_nickname,
                 IFNULL(SUM(ghd.z_yl + ghd.x_yl), 0) AS total_xzyl,
-                IFNULL(SUM(ghd.zd_yl + ghd.xd_yl + ghd.h_yl + ghd.m_yl + ghd.l_yl + ghd.k_yl + ghd.q_yl), 0) AS total_sbyl,
+                IFNULL(SUM(ghd.zd_yl + ghd.xd_yl + ghd.h_yl + ghd.m_yl + ghd.l_yl + ghd.k_yl + ghd.q_yl + ghd.a_yl), 0) AS total_sbyl,
                 IFNULL(SUM(ghd.xml_sb), 0) AS total_xml_sb,
                 IFNULL(SUM(ghd.xml_zx), 0) AS total_xml_zx,
                 IFNULL(SUM(ghd.yxxz), 0) AS total_yxxz,

@@ -109,7 +109,8 @@ router.post('/auto_lottery_setup', async function(req, res) {
         let msg = req.body.data?req.body.data:req.body;
         await redlock.lock("auto_lottery_setup:" + msg.userName,2000);
         let row = await systemDao.autoLotterySetup(msg);                                                         
-        if (row.data.affectedRows > 0 ) {
+        if (row.err) return res.send({code:500,msg:String(row.err),data:null});
+        if (row.data && row.data.affectedRows > 0 ) {
             return res.send({code:200,msg:"提交成功",data:null});  
         }else{
             return res.send({code:500,msg:"提交失败",data:null}); 

@@ -305,6 +305,7 @@ router.post('/edit_bet_data', async function(req, res) {
         l: '小老虎',
         k: '大老虎',
         m: '完美',
+        a: '幸运七A',
         q: '幸运七'
     };
     const beforeBetLogData = {};

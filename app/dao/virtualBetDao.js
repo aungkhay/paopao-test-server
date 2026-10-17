@@ -2,7 +2,7 @@ let pomelo = require('pomelo');
 let dao = module.exports;
 let mysql = pomelo.app.get('sqlHelper');
 
-const ALLOWED_OTHER_TYPES = ['h', 'zd', 'xd', 'l', 'k', 'm', 'q'];
+const ALLOWED_OTHER_TYPES = ['h', 'zd', 'xd', 'l', 'k', 'm', 'q', 'a'];
 const ALLOWED_SIDE_MODES = ['random', 'z', 'x'];
 
 function normalizeSideMode(value) {

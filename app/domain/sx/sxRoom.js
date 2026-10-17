@@ -800,6 +800,11 @@ sxRoom.prototype.editRoad = async function(msg,cb){
     let rInfo = this.roomInfo;
     let isLucky6_2 = parseResult.isLucky6_2(msg.result);
     let isLucky6_3 = parseResult.isLucky6_3(msg.result);
+    if ((msg.result & 2048) && (msg.result & 4096) ||
+        (msg.result & 256) && (msg.result & 4096) ||
+        (msg.result & 1024) && (msg.result & 2048)) {
+        return cb({code:500,msg:"幸运七A牌数标记冲突"});
+    }
     let isLucky7_4 = parseResult.isLucky7_4(msg.result);
     let isLucky7_5 = parseResult.isLucky7_5(msg.result);
     let isLucky7_6 = parseResult.isLucky7_6(msg.result);
@@ -845,6 +850,11 @@ sxRoom.prototype.editShoeRound = async function(msg,cb){
     
     let isLucky6_2 = parseResult.isLucky6_2(msg.result);
     let isLucky6_3 = parseResult.isLucky6_3(msg.result);
+    if ((msg.result & 2048) && (msg.result & 4096) ||
+        (msg.result & 256) && (msg.result & 4096) ||
+        (msg.result & 1024) && (msg.result & 2048)) {
+        return cb({code:500,msg:"幸运七A牌数标记冲突"});
+    }
     let isLucky7_4 = parseResult.isLucky7_4(msg.result);
     let isLucky7_5 = parseResult.isLucky7_5(msg.result);
     let isLucky7_6 = parseResult.isLucky7_6(msg.result);
@@ -1010,6 +1020,11 @@ sxRoom.prototype.pushResult = async function(msg,cb) {                          
 
     let isLucky6_2 = parseResult.isLucky6_2(msg.result_code);
     let isLucky6_3 = parseResult.isLucky6_3(msg.result_code);
+    if ((msg.result_code & 2048) && (msg.result_code & 4096) ||
+        (msg.result_code & 256) && (msg.result_code & 4096) ||
+        (msg.result_code & 1024) && (msg.result_code & 2048)) {
+        return cb({code:500,msg:"幸运七A牌数标记冲突"});
+    }
     let isLucky7_4 = parseResult.isLucky7_4(msg.result_code);
     let isLucky7_5 = parseResult.isLucky7_5(msg.result_code);
     let isLucky7_6 = parseResult.isLucky7_6(msg.result_code);
@@ -1040,6 +1055,7 @@ sxRoom.prototype.pushResult = async function(msg,cb) {                          
         return cb({code:500,msg:"不能同时两个以上的幸运7"});
     }
 
+    const previousGameState = rInfo.gameState;
     // 因为暂停状态下当局不改变状态,极速模式下没有开奖状态
     console.log(`当前的游戏状态1:${rInfo.gameState},!${rInfo.quick_mode}`);
     if(GAMESTATE.PAUSE != rInfo.gameState && !rInfo.quick_mode){   
@@ -1048,7 +1064,10 @@ sxRoom.prototype.pushResult = async function(msg,cb) {                          
 
     // 保持原有异步开奖时序；路单刷新和出图通知在 gameResult 内等待更新完成。
     
-    await this.gameResult(msg, cb);
+    if (!await this.gameResult(msg, cb)) {
+        rInfo.gameState = previousGameState;
+        return;
+    }
 
     // 获取分数表截图数据的时候按下面这个局数，每局开奖后延长10秒恢复
     rInfo.lastResultJc = rInfo.jc;

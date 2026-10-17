@@ -485,8 +485,8 @@ playerDao.betDetailsQueryByName = async function(msg){
     let args = [msg.group_nickname, msg.name, msg.startTime, msg.endTime];
 
     let commonFields = `g.Id, u.username AS userName, g.cc, g.jc, g.kj, g.str_pai, 
-                        g.z, g.h, g.x, g.zd, g.xd, g.m, 0 AS d, g.l, g.k, g.q,
-                        g.z_yl, g.h_yl, g.x_yl, g.zd_yl, g.xd_yl, g.m_yl, g.q_yl, g.l_yl,g.k_yl,
+                        g.z, g.h, g.x, g.zd, g.xd, g.m, 0 AS d, g.l, g.k, g.q, g.a,
+                        g.z_yl, g.h_yl, g.x_yl, g.zd_yl, g.xd_yl, g.m_yl, g.q_yl, g.a_yl, g.l_yl,g.k_yl,
                         g.xz, g.xzmx, g.yxxz, g.yl, g.reference_name, 
                         g.stime, g.betTime, g.before_bet_ye, 
                         g.xml_zx, g.xml_sb, g.xml_s, g.xml_d, 
@@ -553,7 +553,7 @@ playerDao.PlayerDetailsQuery = async function(msg){
                 SUM(CASE WHEN (g.z > 0 OR g.x > 0) THEN g.yxxz ELSE 0 END) AS xml_zx,
                 SUM(CASE WHEN (g.zd > 0 OR g.xd > 0 OR g.h > 0) THEN g.yxxz ELSE 0 END) AS xml_sb,
                 SUM(g.z_yl + g.x_yl) AS zx_yl,
-                SUM(g.zd_yl + g.xd_yl + g.h_yl + g.l_yl + g.k_yl + g.m_yl + g.q_yl) AS sb_yl,
+                SUM(g.zd_yl + g.xd_yl + g.h_yl + g.l_yl + g.k_yl + g.m_yl + g.q_yl + g.a_yl) AS sb_yl,
                 SUM(g.yxxz) AS yxxz
             FROM gameshist_record g
             INNER JOIN user u ON u.Id = g.userId   -- ✅ userId 关联
@@ -599,6 +599,7 @@ playerDao.playerDetailsQueryByRound = async function(msg){
             IFNULL(sum(m), 0) as m,
             IFNULL(sum(l), 0) as l,
             IFNULL(sum(q), 0) as q,
+            IFNULL(sum(a), 0) as a,
 
             IFNULL(SUM(CASE 
                 WHEN (z > 0 OR x > 0)
@@ -613,7 +614,7 @@ playerDao.playerDetailsQueryByRound = async function(msg){
             END),0) as xml_sb,
 
             IFNULL(sum(z_yl + x_yl), 0) as zx_yl,
-            IFNULL(sum(zd_yl + xd_yl + h_yl + l_yl + k_yl + m_yl + q_yl), 0) as sb_yl,
+            IFNULL(sum(zd_yl + xd_yl + h_yl + l_yl + k_yl + m_yl + q_yl + a_yl), 0) as sb_yl,
             IFNULL(sum(yxxz), 0) as yxxz
             from gameshist_record
             where ${condition}` 
@@ -731,6 +732,7 @@ playerDao.getPlayerBetData = async function (msg) {
             COALESCE(SUM(g.l), 0) AS l,
             COALESCE(SUM(g.k), 0) AS k,
             COALESCE(SUM(g.q), 0) AS q,
+            COALESCE(SUM(g.a), 0) AS a,
 
             COALESCE(SUM(g.xz), 0) AS total_xz,
             COALESCE(SUM(g.yxxz), 0) AS total_yxxz
@@ -1056,6 +1058,7 @@ playerDao.statisticsSbPercentageByShoe = async function(msg){
         COALESCE(SUM(g.h * f.sb_personal_share / 100), 0) as g_h,
         COALESCE(SUM(g.m * f.sb_personal_share / 100), 0) as g_m,
         COALESCE(SUM(g.q * f.sb_personal_share / 100), 0) as g_q,
+        COALESCE(SUM(g.a * f.sb_personal_share / 100), 0) as g_a,
         COALESCE(SUM(g.l * f.sb_personal_share / 100), 0) as g_l
 
     FROM gameshist_record g
@@ -1835,7 +1838,7 @@ playerDao.getPlayerActivity = async function(msg){
                 u.reference_name,
                 IFNULL(SUM(g.xml_zx + g.xml_sb), 0) AS bet_count,
                 IFNULL(SUM(g.yxxz), 0) AS total_bet,
-                IFNULL(SUM(g.z_yl + g.x_yl + g.zd_yl + g.xd_yl + g.h_yl + g.l_yl + g.k_yl + g.m_yl + g.q_yl), 0) AS total_yl,
+                IFNULL(SUM(g.z_yl + g.x_yl + g.zd_yl + g.xd_yl + g.h_yl + g.l_yl + g.k_yl + g.m_yl + g.q_yl + g.a_yl), 0) AS total_yl,
                 MAX(g.stat_date) AS last_bet
             FROM gameshist_record_day g 
             INNER JOIN user u ON u.Id = g.userId

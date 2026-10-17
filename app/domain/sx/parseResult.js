@@ -33,7 +33,9 @@ module.exports = {
                 [128, '完美'],
                 [256, '幸运7_4'],
                 [512, '幸运7_5'],
-                [1024, '幸运7_6']
+                [1024, '幸运7_6'],
+                [2048, '幸运七A_2'],
+                [4096, '幸运七A_3']
             ];
 
             return map
@@ -88,6 +90,21 @@ module.exports = {
     isLucky7_4(code) { return (code & 256) === 256; },
     isLucky7_5(code) { return (code & 512) === 512; },
     isLucky7_6(code) { return (code & 1024) === 1024; },
+
+    // A 独立于 Q；四张/六张超级七可以确定闲牌张数，五张必须明确标记。
+    luckySevenAMultiplier(code, parameters = {}) {
+        const two = (code & 2048) !== 0 || this.isLucky7_4(code);
+        const three = (code & 4096) !== 0 || this.isLucky7_6(code);
+        if (two && three) throw new Error('幸运七A不能同时为两张和三张');
+        if (this.isLucky7_5(code) && !two && !three) {
+            throw new Error('五张超级七需要标明闲两张或三张七点');
+        }
+        const base = two ? Number(parameters.lucky7_a_2_odds ?? 500) / 100
+            : three ? Number(parameters.lucky7_a_3_odds ?? 1500) / 100 : 0;
+        // A 超级七仅按已明确的闲两张7点胜庄两张6点奖励；Q 的五/六张赔率不适用于 A。
+        const bonus = this.isLucky7_4(code) ? Number(parameters.lucky7_a_super_4_odds ?? 3000) / 100 : 0;
+        return base + bonus;
+    },
 
     cardIDToName(cardID){
         if (cardID === -1 || cardID === 15) return "";
@@ -181,7 +198,7 @@ module.exports = {
             "ZD": "zd", "XD": "xd",
             "D": "pair", "DZ": "pair",
             "L": "l", "K": "k",
-            "Q": "q", "M": "m",
+            "Q": "q", "A": "a", "幸运七A": "a", "M": "m",
             "SB": "sb", "BB": "bb",
             "ZS": "zs", "SZ": "zs",
             "XS": "xs", "SX": "xs",
@@ -223,7 +240,7 @@ module.exports = {
 
         // 仅兼容已知普通玩法的“类型+w/万+数字”，例如 zw1、xdw2、bb万1。
         // 不使用泛化字母匹配，避免改变梭哈、撤注、改单及未知指令的含义。
-        const typeBeforeWanPattern = /(小老虎|大老虎|幸运七|庄对|闲对|对子|三宝|四宝|Z对|X对|ZD|XD|DZ|SB|BB|庄|和|闲|对|Z|H|X|D|L|K|Q|M)[wW万](\d+)/gi;
+        const typeBeforeWanPattern = /(小老虎|大老虎|幸运七|庄对|闲对|对子|三宝|四宝|Z对|X对|ZD|XD|DZ|SB|BB|庄|和|闲|对|Z|H|X|D|L|K|Q|A|M)[wW万](\d+)/gi;
         s = s.replace(typeBeforeWanPattern, (match, rawType, amount) => {
             return rawType + String(Number(amount) * 10000);
         });
@@ -236,7 +253,7 @@ module.exports = {
             l: "小老虎", k: "大老虎",
             ls: "小老虎梭", ks: "大老虎梭", n: "老虎梭",
             zds: "庄对梭", xds: "闲对梭",
-            q: "幸运七", m: "完美",
+            a: "幸运七A", q: "幸运七", m: "完美",
             qs: "幸运七梭", ms: "完美梭",
             sb: "三宝", bb: "四宝", bbs: "四宝梭",
             zs: "庄梭", xs: "闲梭", hs: "和梭",

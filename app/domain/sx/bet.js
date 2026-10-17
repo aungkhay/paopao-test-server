@@ -229,6 +229,7 @@ module.exports = {
             '闲对': ['xd'], '闲对梭': ['xd'],
             '小老虎': ['l'], '小老虎梭': ['l'],
             '大老虎': ['k'], '大老虎梭': ['k'],
+            '幸运七A': ['a'], 'a': ['a'],
             '幸运七': ['q'], '幸运七梭': ['q'],
             '完美': ['m'], '完美梭': ['m'],
             '对子梭': ['zd', 'xd'],
@@ -254,6 +255,7 @@ module.exports = {
             '闲对': ['xd'], '闲对梭': ['xd'],
             '小老虎': ['l'], '小老虎梭': ['l'],
             '大老虎': ['k'], '大老虎梭': ['k'],
+            '幸运七A': ['a'], 'a': ['a'],
             '幸运七': ['q'], '幸运七梭': ['q'],
             '完美': ['m'], '完美梭': ['m'],
             '对子': ['zd', 'xd'], '对子梭': ['zd', 'xd'],
@@ -2063,6 +2065,9 @@ module.exports = {
                         return true;
                     }
                 }
+                if (element.type == "幸运七A") {
+                    if (Number(r.enable_Lucky_7_a) === 0 || element.amount > (r.lucky7_a_max_limit ?? r.lucky7_max_limit)) return true;
+                }
                 if (element.type == "幸运七") {   // 幸运七
                     if (element.amount > r.lucky7_max_limit) {
                         return true;
@@ -2120,6 +2125,9 @@ module.exports = {
                     if (element.amount < r.lucky6_3_min_limit) {
                         return true;
                     }
+                }
+                if (element.type == "幸运七A") {
+                    if (element.amount < (r.lucky7_a_min_limit ?? r.lucky7_min_limit)) return true;
                 }
                 if (element.type == "幸运七" || element.type == "幸运7") {
                     if (element.amount < r.lucky7_min_limit ) {
@@ -2204,6 +2212,7 @@ function normalizeMainType(type) {
         // 其他主项直接映射自身短码/中文
         'h': 'h', 'hs': 'h', '和': 'h', '和梭': 'h',
         'm': 'm', 'ms': 'm', '完美': 'm', '完美梭': 'm',
+        'a': 'a', '幸运七A': 'a',
         'q': 'q', 'qs': 'q', '幸运七': 'q', '幸运七梭': 'q'
     };
     return map[t] || t;

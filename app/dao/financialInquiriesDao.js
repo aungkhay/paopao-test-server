@@ -19,6 +19,8 @@ const BET_TYPE_FIELDS = {
     'l': 'l',
     '大老虎': 'k',
     'k': 'k',
+    '幸运七A': 'a',
+    'a': 'a',
     '幸运七': 'q',
     'q': 'q',
     '幸运六': 'm',
@@ -135,8 +137,8 @@ dao.getJcStatistics = async function (msg) {
 
         let rows = await mysql.query("bjl",sql,args);
 
-        const summaryFields = ['z', 'h','x','zd','xd','l','k','m', 'q','g_z','g_x','g_zd', 'g_xd','g_h','g_m',
-                    'g_l','g_k','g_q','zxdc','tzx','tsbl','lt','sp','zyk', 'xzyk','gyk','dcyk','xztyk', 
+        const summaryFields = ['z', 'h','x','zd','xd','l','k','m', 'q','a','g_z','g_x','g_zd', 'g_xd','g_h','g_m',
+                    'g_l','g_k','g_q','g_a','zxdc','tzx','tsbl','lt','sp','zyk', 'xzyk','gyk','dcyk','xztyk',
                     'sbltyk','sblspyk','xzspyk','ltyk', 'spzsyk'     
         ];
 
@@ -235,6 +237,7 @@ dao.getCcTotal = async function(msg){
             SUM(g.xd) as xd,
             SUM(g.m) as m,
             SUM(g.q) as q,
+            SUM(g.a) as a,
             SUM(g.l) as l,
             SUM(g.k) as k,
 
@@ -243,6 +246,7 @@ dao.getCcTotal = async function(msg){
             SUM(g.xd_yl) as xd_yl,
             SUM(g.m_yl) as m_yl,
             SUM(g.q_yl) as q_yl,
+            SUM(g.a_yl) as a_yl,
             SUM(g.l_yl) as l_yl,
             SUM(g.k_yl) as k_yl,
 
@@ -466,7 +470,7 @@ dao.htPlayerDetailsQuery = async function (msg) {
                         COALESCE(g.l_yl, 0) +
                         COALESCE(g.k_yl, 0) +
                         COALESCE(g.m_yl, 0) +
-                        COALESCE(g.q_yl, 0)
+                        COALESCE(g.q_yl, 0) + COALESCE(g.a_yl, 0)
                     ),
                     0
                 ) AS sb_yl,
@@ -689,7 +693,7 @@ dao.htPlayerDetailsQuery = async function (msg) {
                 COALESCE(g.l_yl, 0)+
                 COALESCE(g.k_yl, 0)+
                 COALESCE(g.m_yl, 0)+
-                COALESCE(g.q_yl, 0)
+                COALESCE(g.q_yl, 0) + COALESCE(g.a_yl, 0)
             ) sb_yl,
 
 
@@ -770,7 +774,7 @@ dao.htPlayerDetailsQuery = async function (msg) {
                 COALESCE(g.l_yl, 0)+
                 COALESCE(g.k_yl, 0)+
                 COALESCE(g.m_yl, 0)+
-                COALESCE(g.q_yl, 0)
+                COALESCE(g.q_yl, 0) + COALESCE(g.a_yl, 0)
             ) total_sb_yl,
 
 
@@ -922,7 +926,7 @@ dao.htPlayerDetailsQueryByShoe = async function(msg){
                 IFNULL(SUM(CASE WHEN (g.zd > 0 OR g.xd > 0 OR g.h > 0) THEN g.yxxz ELSE 0 END),0) as xml_sb,
                 SUM(g.z + g.x) as xz_xz,
                 SUM(g.z_yl + g.x_yl) as xz_yl,
-                SUM(g.zd_yl + g.xd_yl + g.h_yl + g.l_yl + g.k_yl + g.m_yl + g.q_yl) as sb_yl,
+                SUM(g.zd_yl + g.xd_yl + g.h_yl + g.l_yl + g.k_yl + g.m_yl + g.q_yl + g.a_yl) as sb_yl,
                 SUM(g.yxxz) as yxxz
             FROM gameshist_record g
             INNER JOIN user u ON u.Id = g.userId   -- ✅ userId 关联
@@ -1010,6 +1014,7 @@ dao.htSbDetailsQuery = async function(msg) {
                 SUM(k) AS k,
                 SUM(m) AS m,
                 SUM(q) AS q,
+                SUM(a) AS a,
                 SUM(h_yl) AS h_yl,
                 SUM(zd_yl) AS zd_yl,
                 SUM(xd_yl) AS xd_yl,
@@ -1017,6 +1022,7 @@ dao.htSbDetailsQuery = async function(msg) {
                 SUM(k_yl) AS k_yl,
                 SUM(m_yl) AS m_yl,
                 SUM(q_yl) AS q_yl,
+                SUM(a_yl) AS a_yl,
                 SUM(zyk) AS yl
             ${baseSql}
             ${groupSql}
@@ -1035,6 +1041,7 @@ dao.htSbDetailsQuery = async function(msg) {
                 IFNULL(SUM(l),0) AS total_l,
                 IFNULL(SUM(m),0) AS total_m,
                 IFNULL(SUM(q),0) AS total_q,
+                IFNULL(SUM(a),0) AS total_a,
                 IFNULL(SUM(k),0) AS total_k,
                 IFNULL(SUM(h_yl),0) AS total_h_yl,
                 IFNULL(SUM(zd_yl),0) AS total_zd_yl,
@@ -1043,6 +1050,7 @@ dao.htSbDetailsQuery = async function(msg) {
                 IFNULL(SUM(k_yl),0) AS total_k_yl,
                 IFNULL(SUM(m_yl),0) AS total_m_yl,
                 IFNULL(SUM(q_yl),0) AS total_q_yl,
+                IFNULL(SUM(a_yl),0) AS total_a_yl,
                 IFNULL(SUM(zyk),0) AS total_yl
             FROM game_jc_total
             ${where}
@@ -1068,6 +1076,7 @@ dao.htSbDetailsQuery = async function(msg) {
             total_l: parseFloat(s.total_l || 0),
             total_m: parseFloat(s.total_m || 0),
             total_q: parseFloat(s.total_q || 0),
+            total_a: parseFloat(s.total_a || 0),
             total_h_yl: parseFloat(s.total_h_yl || 0),
             total_zd_yl: parseFloat(s.total_zd_yl || 0),
             total_xd_yl: parseFloat(s.total_xd_yl || 0),
@@ -1075,6 +1084,7 @@ dao.htSbDetailsQuery = async function(msg) {
             total_k_yl: parseFloat(s.total_k_yl || 0),
             total_m_yl: parseFloat(s.total_m_yl || 0),
             total_q_yl: parseFloat(s.total_q_yl || 0),
+            total_a_yl: parseFloat(s.total_a_yl || 0),
             total_yl: parseFloat(s.total_yl || 0),
             total_k_yl: parseFloat(s.total_k_yl || 0)
         };
@@ -1228,8 +1238,8 @@ dao.total_gameshist_day = async function(msg = {}){
             INSERT INTO gameshist_record_day (
                 stat_date, group_nickname, userId,
                 z, x, z_yl, x_yl,
-                zd, xd, h, l, k, m, q,
-                zd_yl, xd_yl, h_yl, l_yl, k_yl, m_yl, q_yl,
+                zd, xd, h, l, k, m, q, a,
+                zd_yl, xd_yl, h_yl, l_yl, k_yl, m_yl, q_yl, a_yl,
                 yxxz, g_yxxz, xml_zx, xml_sb, g_xm, g_yl, points
             )
             SELECT 
@@ -1237,8 +1247,8 @@ dao.total_gameshist_day = async function(msg = {}){
                 g.group_nickname,
                 g.userId,                          -- ✅ 直接用 gameshist_record.userId
                 SUM(z), SUM(x), SUM(z_yl), SUM(x_yl),
-                SUM(zd), SUM(xd), SUM(h), SUM(l),SUM(k), SUM(m), SUM(q),
-                SUM(zd_yl), SUM(xd_yl), SUM(h_yl), SUM(l_yl), SUM(k_yl), SUM(m_yl), SUM(q_yl),
+                SUM(zd), SUM(xd), SUM(h), SUM(l),SUM(k), SUM(m), SUM(q), SUM(a),
+                SUM(zd_yl), SUM(xd_yl), SUM(h_yl), SUM(l_yl), SUM(k_yl), SUM(m_yl), SUM(q_yl), SUM(a_yl),
                 SUM(yxxz),
                 IFNULL(SUM(
                     CASE
@@ -1276,9 +1286,9 @@ dao.total_gameshist_day = async function(msg = {}){
                 SELECT
                     src.Id, src.statistics_date, src.group_nickname, src.userId,
                     src.z, src.x, src.z_yl, src.x_yl,
-                    src.zd, src.xd, src.h, src.l, src.k, src.m, src.q,
+                    src.zd, src.xd, src.h, src.l, src.k, src.m, src.q, src.a,
                     src.zd_yl, src.xd_yl, src.h_yl, src.l_yl,
-                    src.k_yl, src.m_yl, src.q_yl,
+                    src.k_yl, src.m_yl, src.q_yl, src.a_yl,
                     src.yxxz, src.kj, src.g_zx, src.xml_zx, src.xml_sb, src.g_xm, src.g_yl, src.points
                 FROM gameshist_record src
                 ${sourceWhere}
@@ -1290,9 +1300,9 @@ dao.total_gameshist_day = async function(msg = {}){
                 SELECT
                     src.Id, src.statistics_date, src.group_nickname, src.userId,
                     src.z, src.x, src.z_yl, src.x_yl,
-                    src.zd, src.xd, src.h, src.l, src.k, src.m, src.q,
+                    src.zd, src.xd, src.h, src.l, src.k, src.m, src.q, src.a,
                     src.zd_yl, src.xd_yl, src.h_yl, src.l_yl,
-                    src.k_yl, src.m_yl, src.q_yl,
+                    src.k_yl, src.m_yl, src.q_yl, src.a_yl,
                     src.yxxz, src.kj, src.g_zx, src.xml_zx, src.xml_sb, src.g_xm, src.g_yl,
                     src.points
                 FROM gameshist src
@@ -1312,10 +1322,10 @@ dao.total_gameshist_day = async function(msg = {}){
                 z = VALUES(z), x = VALUES(x),
                 z_yl = VALUES(z_yl), x_yl = VALUES(x_yl),
                 zd = VALUES(zd), xd = VALUES(xd),
-                h = VALUES(h), l = VALUES(l), k = VALUES(k), m = VALUES(m), q = VALUES(q),
+                h = VALUES(h), l = VALUES(l), k = VALUES(k), m = VALUES(m), q = VALUES(q), a = VALUES(a),
                 zd_yl = VALUES(zd_yl), xd_yl = VALUES(xd_yl),
                 h_yl = VALUES(h_yl), l_yl = VALUES(l_yl),
-                k_yl = VALUES(k_yl), m_yl = VALUES(m_yl), q_yl = VALUES(q_yl),
+                k_yl = VALUES(k_yl), m_yl = VALUES(m_yl), q_yl = VALUES(q_yl), a_yl = VALUES(a_yl),
                 yxxz = VALUES(yxxz),
                 g_yxxz = VALUES(g_yxxz),
                 xml_zx = VALUES(xml_zx),
@@ -1794,6 +1804,7 @@ dao.getPlayerBetData = async function (msg) {
                 COALESCE(SUM(g.l), 0) AS l,
                 COALESCE(SUM(g.k), 0) AS k,
                 COALESCE(SUM(g.q), 0) AS q,
+                COALESCE(SUM(g.a), 0) AS a,
                 COALESCE(SUM(g.xz), 0) AS total_xz,
                 COALESCE(SUM(g.yxxz), 0) AS total_yxxz
             FROM group_member gm
