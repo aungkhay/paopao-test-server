@@ -384,7 +384,8 @@ router.post('/get_bet_area', async function(req, res) {
                 enable_Lucky_6: row[0].enable_Lucky_6 ?? 0,
                 enable_perfect_pairs: row[0].enable_perfect_pairs ?? 0,
                 enable_any_pairs: row[0].enable_any_pairs ?? 0,
-                enable_Lucky_7: row[0].enable_Lucky_7 ?? 0
+                enable_Lucky_7: row[0].enable_Lucky_7 ?? 0,
+                enable_Lucky_7_a: row[0].enable_Lucky_7_a ?? 0
             }
             return res.send({code:200,msg:"获取记录成功",data:data});  
         }else{
