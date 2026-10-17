@@ -125,6 +125,7 @@ let settlement_bjl = async (msg,rInfo,res) => {
 
     const aMultiplier = res.some(row => Number(row.a) > 0) ? parseResult.luckySevenAMultiplier(msg.result_code, rInfo.parameter_setup) : 0;
     msg.strPai = aMultiplier > 0 ? "幸运七A " : "";
+    if(parseResult.isSuperLucky7(msg.result_code)) msg.strPai += "超级幸运七 ";
     if(isBank)msg.strPai += "庄 "
     if(isTie)msg.strPai += "和 "
     if(isPlayer)msg.strPai += "闲 "

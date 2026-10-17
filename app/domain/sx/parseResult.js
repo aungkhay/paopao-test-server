@@ -35,7 +35,8 @@ module.exports = {
                 [512, '幸运7_5'],
                 [1024, '幸运7_6'],
                 [2048, '幸运七A_2'],
-                [4096, '幸运七A_3']
+                [4096, '幸运七A_3'],
+                [8192, '超级幸运七']
             ];
 
             return map
@@ -91,18 +92,17 @@ module.exports = {
     isLucky7_5(code) { return (code & 512) === 512; },
     isLucky7_6(code) { return (code & 1024) === 1024; },
 
-    // A 独立于 Q；四张/六张超级七可以确定闲牌张数，五张必须明确标记。
+    isSuperLucky7(code) { return (code & 8192) === 8192; },
+
+    // A 使用独立结果位。超级七为闲两张7点，自动叠加普通两张七点奖励。
     luckySevenAMultiplier(code, parameters = {}) {
-        const two = (code & 2048) !== 0 || this.isLucky7_4(code);
-        const three = (code & 4096) !== 0 || this.isLucky7_6(code);
+        const superSeven = this.isSuperLucky7(code);
+        const two = (code & 2048) !== 0 || superSeven;
+        const three = (code & 4096) !== 0;
         if (two && three) throw new Error('幸运七A不能同时为两张和三张');
-        if (this.isLucky7_5(code) && !two && !three) {
-            throw new Error('五张超级七需要标明闲两张或三张七点');
-        }
         const base = two ? Number(parameters.lucky7_a_2_odds ?? 500) / 100
             : three ? Number(parameters.lucky7_a_3_odds ?? 1500) / 100 : 0;
-        // A 超级七仅按已明确的闲两张7点胜庄两张6点奖励；Q 的五/六张赔率不适用于 A。
-        const bonus = this.isLucky7_4(code) ? Number(parameters.lucky7_a_super_4_odds ?? 3000) / 100 : 0;
+        const bonus = superSeven ? Number(parameters.lucky7_a_super_4_odds ?? 3000) / 100 : 0;
         return base + bonus;
     },
 

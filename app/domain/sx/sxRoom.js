@@ -800,10 +800,11 @@ sxRoom.prototype.editRoad = async function(msg,cb){
     let rInfo = this.roomInfo;
     let isLucky6_2 = parseResult.isLucky6_2(msg.result);
     let isLucky6_3 = parseResult.isLucky6_3(msg.result);
-    if ((msg.result & 2048) && (msg.result & 4096) ||
-        (msg.result & 256) && (msg.result & 4096) ||
-        (msg.result & 1024) && (msg.result & 2048)) {
+    if ((msg.result & (2048 | 8192)) && (msg.result & 4096)) {
         return cb({code:500,msg:"幸运七A牌数标记冲突"});
+    }
+    if (parseResult.isSuperLucky7(msg.result) && !parseResult.isPlayer(msg.result)) {
+        return cb({code:500,msg:"开超级幸运七必须是闲赢"});
     }
     let isLucky7_4 = parseResult.isLucky7_4(msg.result);
     let isLucky7_5 = parseResult.isLucky7_5(msg.result);
@@ -850,10 +851,11 @@ sxRoom.prototype.editShoeRound = async function(msg,cb){
     
     let isLucky6_2 = parseResult.isLucky6_2(msg.result);
     let isLucky6_3 = parseResult.isLucky6_3(msg.result);
-    if ((msg.result & 2048) && (msg.result & 4096) ||
-        (msg.result & 256) && (msg.result & 4096) ||
-        (msg.result & 1024) && (msg.result & 2048)) {
+    if ((msg.result & (2048 | 8192)) && (msg.result & 4096)) {
         return cb({code:500,msg:"幸运七A牌数标记冲突"});
+    }
+    if (parseResult.isSuperLucky7(msg.result) && !parseResult.isPlayer(msg.result)) {
+        return cb({code:500,msg:"开超级幸运七必须是闲赢"});
     }
     let isLucky7_4 = parseResult.isLucky7_4(msg.result);
     let isLucky7_5 = parseResult.isLucky7_5(msg.result);
@@ -1020,10 +1022,11 @@ sxRoom.prototype.pushResult = async function(msg,cb) {                          
 
     let isLucky6_2 = parseResult.isLucky6_2(msg.result_code);
     let isLucky6_3 = parseResult.isLucky6_3(msg.result_code);
-    if ((msg.result_code & 2048) && (msg.result_code & 4096) ||
-        (msg.result_code & 256) && (msg.result_code & 4096) ||
-        (msg.result_code & 1024) && (msg.result_code & 2048)) {
+    if ((msg.result_code & (2048 | 8192)) && (msg.result_code & 4096)) {
         return cb({code:500,msg:"幸运七A牌数标记冲突"});
+    }
+    if (parseResult.isSuperLucky7(msg.result_code) && !parseResult.isPlayer(msg.result_code)) {
+        return cb({code:500,msg:"开超级幸运七必须是闲赢"});
     }
     let isLucky7_4 = parseResult.isLucky7_4(msg.result_code);
     let isLucky7_5 = parseResult.isLucky7_5(msg.result_code);
