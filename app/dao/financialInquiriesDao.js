@@ -109,6 +109,21 @@ dao.getPlayerBettingDetails = async function (msg) {
     }}};
 };
 
+// Keep storage field names for existing clients and expose descriptive A names for the frontend.
+function addLuckySevenADetails(data) {
+    const number = value => Number.isFinite(Number(value)) ? Number(value) : 0;
+    data.list = (data.list || []).map(row => ({
+        ...row,
+        a: number(row.a), a_yl: number(row.a_yl),
+        lucky7_a: number(row.a), lucky7_a_yl: number(row.a_yl)
+    }));
+    data.summary.total_a = number(data.summary.total_a);
+    data.summary.total_a_yl = number(data.summary.total_a_yl);
+    data.summary.total_lucky7_a = data.summary.total_a;
+    data.summary.total_lucky7_a_yl = data.summary.total_a_yl;
+    return data;
+}
+
 dao.getJcStatistics = async function (msg) {
     let condition = " 1 ";
     let args = [];
@@ -137,7 +152,7 @@ dao.getJcStatistics = async function (msg) {
 
         let rows = await mysql.query("bjl",sql,args);
 
-        const summaryFields = ['z', 'h','x','zd','xd','l','k','m', 'q','a','g_z','g_x','g_zd', 'g_xd','g_h','g_m',
+        const summaryFields = ['z', 'h','x','zd','xd','l','k','m', 'q','a','a_yl','g_z','g_x','g_zd', 'g_xd','g_h','g_m',
                     'g_l','g_k','g_q','g_a','zxdc','tzx','tsbl','lt','sp','zyk', 'xzyk','gyk','dcyk','xztyk',
                     'sbltyk','sblspyk','xzspyk','ltyk', 'spzsyk'     
         ];
@@ -146,18 +161,18 @@ dao.getJcStatistics = async function (msg) {
         let summarySql = mysql.buildSummarySQL('game_jc_total',summaryFields,condition)
 
         // 下面统计
-        let summaryRows = await mysql.query("bjl", summarySql, args);
-        let s = summaryRows[0];
+        let summaryRows = await mysql.query("bjl", summarySql, args.slice(0, -2));
+        let s = summaryRows[0] || {};
 
         let summary = {
             total_count: s.total_count
         };
 
         summaryFields.forEach(f => {
-            summary[`total_${f}`] = parseFloat(s[`total_${f}`]);
+            summary[`total_${f}`] = parseFloat(s[`total_${f}`] || 0);
         });
 
-        return {err:null,data:{list:rows,count:s.total_count, summary: summary}};
+        return {err:null,data:addLuckySevenADetails({list:rows,count:s.total_count, summary: summary})};
 
     // }catch(err){
     //     console.error("err:",JSON.stringify(err));
@@ -1074,6 +1089,7 @@ dao.htSbDetailsQuery = async function(msg) {
             total_zd: parseFloat(s.total_zd || 0),
             total_xd: parseFloat(s.total_xd || 0),
             total_l: parseFloat(s.total_l || 0),
+            total_k: parseFloat(s.total_k || 0),
             total_m: parseFloat(s.total_m || 0),
             total_q: parseFloat(s.total_q || 0),
             total_a: parseFloat(s.total_a || 0),
@@ -1085,19 +1101,18 @@ dao.htSbDetailsQuery = async function(msg) {
             total_m_yl: parseFloat(s.total_m_yl || 0),
             total_q_yl: parseFloat(s.total_q_yl || 0),
             total_a_yl: parseFloat(s.total_a_yl || 0),
-            total_yl: parseFloat(s.total_yl || 0),
-            total_k_yl: parseFloat(s.total_k_yl || 0)
+            total_yl: parseFloat(s.total_yl || 0)
         };
 
         return {
             err: null,
-            data: {
+            data: addLuckySevenADetails({
                 list: listRes || [],
                 total: parseInt(total || 0),
                 currentPage,
                 pageSize,
                 summary
-            }
+            })
         };
 
     } catch (err) {
